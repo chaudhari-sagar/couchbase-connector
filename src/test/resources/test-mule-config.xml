@@ -1,0 +1,16 @@
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:couchbase="http://www.mulesoft.org/schema/mule/couchbase"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+          http://www.mulesoft.org/schema/mule/couchbase http://www.mulesoft.org/schema/mule/couchbase/current/mule-couchbase.xsd">
+
+    <couchbase:config name="config" bucket="bucket">
+		<couchbase:hosts ref="hostList" />
+    </couchbase:config>
+
+    <flow name="getDocumentFlow">
+        <couchbase:get-document-by-id id="123"  config-ref="config"/>
+    </flow>
+
+
+</mule>
