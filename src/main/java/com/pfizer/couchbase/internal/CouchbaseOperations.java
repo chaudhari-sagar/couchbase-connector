@@ -2,8 +2,11 @@ package com.pfizer.couchbase.internal;
 
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.mule.runtime.extension.api.annotation.metadata.OutputResolver;
 import org.mule.runtime.extension.api.annotation.param.Config;
 import org.mule.runtime.extension.api.annotation.param.MediaType;
@@ -41,6 +44,23 @@ public class CouchbaseOperations {
 		return ClusterSingleton.getInstance(configuration.getHosts(), configuration.getBucket()).getBucket()
 				.upsert(RawJsonDocument.create(id, json)).content();
 
+	}
+	
+	/**
+	 * Upsert Stream
+	 *
+	 * @param id
+	 *            The id of the document to upsert.
+	 * @param json
+	 *            The document to upsert.
+	 * @return The returned document
+	 * @throws Exception 
+	 */
+	@MediaType(value = ANY, strict = false)
+	public String upsertStream(@Config CouchbaseConfiguration configuration, String id, InputStream json) throws Exception {
+		String contents = IOUtils.toString(json, StandardCharsets.UTF_8.name());
+		return ClusterSingleton.getInstance(configuration.getHosts(), configuration.getBucket()).getBucket()
+				.upsert(RawJsonDocument.create(id, contents)).content();
 	}
 
 	/**
