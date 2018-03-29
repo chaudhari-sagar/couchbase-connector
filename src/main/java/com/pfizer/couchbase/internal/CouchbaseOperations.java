@@ -2,6 +2,7 @@ package com.pfizer.couchbase.internal;
 
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -38,29 +39,18 @@ public class CouchbaseOperations {
 	 * @param json
 	 *            The document to upsert.
 	 * @return The returned document
+	 * @throws IOException 
 	 */
 	@MediaType(value = ANY, strict = false)
-	public String upsert(@Config CouchbaseConfiguration configuration, String id, String json) {
-		return ClusterSingleton.getInstance(configuration.getHosts(), configuration.getBucket()).getBucket()
-				.upsert(RawJsonDocument.create(id, json)).content();
-
-	}
-	
-	/**
-	 * Upsert Stream
-	 *
-	 * @param id
-	 *            The id of the document to upsert.
-	 * @param json
-	 *            The document to upsert.
-	 * @return The returned document
-	 * @throws Exception 
-	 */
-	@MediaType(value = ANY, strict = false)
-	public String upsertStream(@Config CouchbaseConfiguration configuration, String id, InputStream json) throws Exception {
-		String contents = IOUtils.toString(json, StandardCharsets.UTF_8.name());
-		return ClusterSingleton.getInstance(configuration.getHosts(), configuration.getBucket()).getBucket()
-				.upsert(RawJsonDocument.create(id, contents)).content();
+	public String upsert(@Config CouchbaseConfiguration configuration, String id, Object json) throws IOException {
+		if (json instanceof InputStream) {
+			String contents = IOUtils.toString((InputStream) json, StandardCharsets.UTF_8.name());
+			return ClusterSingleton.getInstance(configuration.getHosts(), configuration.getBucket()).getBucket()
+					.upsert(RawJsonDocument.create(id, contents)).content();
+		} else {
+			return ClusterSingleton.getInstance(configuration.getHosts(), configuration.getBucket()).getBucket()
+					.upsert(RawJsonDocument.create(id, (String) json)).content();
+		}
 	}
 
 	/**
